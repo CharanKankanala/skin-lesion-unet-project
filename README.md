@@ -1,159 +1,168 @@
 # Skin Lesion Segmentation with U-Net Variants
 
-Group 18 — MSML640 Spring 2026
+**Group 18 — MSML640 Spring 2026**
+*Siva Akash Ramini · Harshini Karella · Charan Kankanala*
 
-## Overview
+This project compares a baseline **U-Net** with an **Attention U-Net** for binary
+skin lesion segmentation on the **ISIC 2018 Task 1** dataset. Both models are
+implemented from scratch in PyTorch and trained under the same pipeline so that
+all comparisons are controlled.
 
-This project implements and compares two U-Net-style architectures for
-binary skin lesion segmentation on the ISIC 2018 dataset:
+The trained models live on Hugging Face and are downloaded automatically the
+first time you run inference, so the project can be reproduced end-to-end on a
+fresh machine without any retraining.
 
-- **Baseline U-Net** — classical encoder–decoder with skip connections.
-- **Attention U-Net** — same backbone with attention gates on every skip
-  connection, allowing the decoder to focus on lesion regions and suppress
-  irrelevant background features.
+🤗 **Models:** https://huggingface.co/CharanKankanala2003/skin-lesion-unet-models
 
-Both models are implemented from scratch in PyTorch and trained under the
-same pipeline so that comparisons are controlled.
+---
 
-The four experiments described in the project proposal are all wired into
-`main.py`:
+## Quick start (one command)
 
-1. **Architecture comparison** — U-Net vs Attention U-Net.
-2. **Loss function study** — Dice, BCE, and Combined Dice + BCE.
-3. **Data efficiency study** — full training set vs 50 % subset.
-4. **Augmentation study** — with augmentation vs without.
+After unzipping or cloning, the entire project runs with **a single command**:
 
-Each run reports four metrics on the validation set: Dice, IoU, Precision,
-and Recall.
-
-## Project Structure
-
-```
-skin-lesion-unet-project/
-├── main.py                          # Runs all experiments + visualizations
-├── README.md
-├── requirements.txt
-├── .gitignore
-├── src/
-│   ├── __init__.py
-│   ├── dataset.py                   # SkinLesionDataset (ISIC images + masks)
-│   ├── transforms.py                # Albumentations train/val transforms
-│   ├── losses.py                    # Dice, BCE, Combined Dice+BCE
-│   ├── metrics.py                   # Dice, IoU, Precision, Recall
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── unet.py                  # Baseline U-Net (custom implementation)
-│   │   └── attention_unet.py        # Attention U-Net (custom implementation)
-│   ├── train_unet.py                # Baseline U-Net training (explicit loop)
-│   ├── train_attention_unet.py      # Attention U-Net training (explicit loop)
-│   └── visualize.py                 # Training curves + prediction comparisons
-└── outputs/
-    ├── checkpoints/<run_tag>/       # epoch01.pth ... epochN.pth + best_model.pth
-    ├── results/<run_tag>.csv        # per-epoch metrics
-    └── figures/                     # training curves, summary table, comparison
+```bash
+bash run.sh
 ```
 
-## Dataset
+This will (on first run):
+1. Create a Python virtual environment in `./venv/`
+2. Install all dependencies from `requirements.txt`
+3. Download the trained U-Net checkpoint (~120 MB) from Hugging Face into `./models_cache/`
+4. Run inference on the bundled `sample_image.jpg`
+5. Save the predicted lesion mask and a visualization in `./inference_outputs/`
 
-Download the ISIC 2018 Task 1 segmentation dataset and place it as:
+On every subsequent run, steps 1–3 are skipped (cached), so inference takes
+just a few seconds.
 
+### Other inference modes
+
+```bash
+# Run the Attention U-Net checkpoint instead of the default U-Net
+bash run.sh --model attention_unet
+
+# Run on your own dermoscopic image
+bash run.sh --image path/to/your/image.jpg
+
+# Combine both
+bash run.sh --model attention_unet --image path/to/your/image.jpg
 ```
-data/raw/images/   # *.jpg dermoscopic images
-data/raw/masks/    # *_segmentation.png ground-truth masks
-```
 
-The dataset is split 80 % train / 20 % validation with a fixed seed (42).
+---
 
-## Setup
+## Requirements
+
+- **Python 3.10+** (tested on Python 3.12)
+- **macOS / Linux** (the `run.sh` launcher is a bash script)
+- **Internet** for the first run (to download the model from Hugging Face)
+- *Optional:* CUDA GPU or Apple Silicon MPS — auto-detected. CPU works too,
+  inference takes ~2 seconds per image either way.
+
+If you are on Windows, the inference script itself works; just call it directly:
 
 ```bash
 python -m venv venv
-source venv/bin/activate           # Windows: venv\Scripts\activate
+venv\Scripts\activate
 pip install -r requirements.txt
+python inference.py
 ```
 
-## Usage
+---
 
-Run the full set of proposal experiments (10 runs total) and generate
-all figures:
+## Project structure
 
-```bash
-python main.py
+```
+skin-lesion-unet-project/
+├── run.sh                           # One-command launcher (recommended entry point)
+├── inference.py                     # Single-image inference (HF model download + prediction)
+├── main.py                          # Full training pipeline for all 10 experiments
+├── sample_image.jpg                 # Bundled sample for the demo run
+├── README.md
+├── requirements.txt
+├── .gitignore
+│
+├── src/
+│   ├── dataset.py                   # SkinLesionDataset (ISIC images + masks)
+│   ├── transforms.py                # Albumentations train/val transforms
+│   ├── losses.py                    # Dice, BCE, Combined Dice + BCE
+│   ├── metrics.py                   # Dice, IoU, Precision, Recall
+│   ├── device.py                    # CUDA / MPS / CPU auto-selection
+│   ├── models/
+│   │   ├── unet.py                  # Baseline U-Net (custom implementation)
+│   │   └── attention_unet.py        # Attention U-Net (custom implementation)
+│   ├── train_unet.py                # Baseline training (explicit loop)
+│   ├── train_attention_unet.py      # Attention training (explicit loop)
+│   └── visualize.py                 # Training curves, summary table, model comparison
+│
+└── outputs/
+    ├── results/<run_tag>.csv        # Per-epoch metrics for each of the 10 experiments
+    └── figures/                     # Training-curve plots, summary, model comparison
 ```
 
-Useful flags:
+---
 
-```bash
-python main.py --epochs 10                  # change epoch count
-python main.py --skip-data-efficiency       # skip the 50% study
-python main.py --skip-aug-study             # skip the no-aug study
-python main.py --skip-train                 # only re-generate figures
-python main.py --skip-viz                   # only run training
-```
+## Reproducing the training (optional — takes ~13 hours)
 
-Run a single experiment from Python:
+> **You do NOT need to retrain to grade this project.** The trained checkpoints
+> are on Hugging Face and `bash run.sh` downloads them automatically.
 
-```python
-from src.train_unet import train_unet
-from src.train_attention_unet import train_attention_unet
+If you want to retrain everything from scratch:
 
-train_unet(loss_name="dice", num_epochs=10)
-train_attention_unet(loss_name="combined", num_epochs=10, train_fraction=0.5)
-```
+1. Download the **ISIC 2018 Task 1** dataset and place it as:
+   ```
+   data/raw/images/   # ISIC_*.jpg dermoscopic images (~2594 files)
+   data/raw/masks/    # ISIC_*_segmentation.png masks  (~2594 files)
+   ```
+2. Activate the venv (`source venv/bin/activate`)
+3. Run:
+   ```bash
+   python main.py
+   ```
 
-## Training Configuration
+This will run all 10 experiments described in the proposal:
+- 6 main runs: 2 architectures × 3 losses (Dice / BCE / Combined Dice+BCE)
+- 2 data-efficiency runs: 50% training subset, both architectures
+- 2 augmentation-ablation runs: no augmentation, both architectures
+
+After training, every `outputs/results/<run_tag>.csv` and
+`outputs/figures/curves_<run_tag>.png` is regenerated, plus
+`outputs/figures/summary_table.csv` and `outputs/figures/model_comparison.png`.
+
+### Training configuration
 
 | Setting | Value |
 | --- | --- |
 | Image size | 256 × 256 |
 | Optimizer | Adam |
-| Learning rate | 1e-3 |
+| Learning rate | 1e-3 (1e-4 for Attention U-Net + Dice loss) |
 | Batch size | 8 |
 | Epochs (per run) | 10 |
 | Augmentation | horizontal flip, vertical flip, rotation (training only) |
-| Train/val split | 80 / 20 (seed 42) |
+| Train/val split | 80 / 20, fixed seed (42) |
 
-## Run Tags
+---
 
-Every run is given a tag that uniquely identifies its configuration:
+## Headline results
 
-| Tag | Architecture | Loss | Data | Augmentation |
-| --- | --- | --- | --- | --- |
-| `unet_dice` | U-Net | Dice | 100 % | yes |
-| `unet_bce` | U-Net | BCE | 100 % | yes |
-| `unet_combined` | U-Net | Dice + BCE | 100 % | yes |
-| `attention_unet_dice` | Attention U-Net | Dice | 100 % | yes |
-| `attention_unet_bce` | Attention U-Net | BCE | 100 % | yes |
-| `attention_unet_combined` | Attention U-Net | Dice + BCE | 100 % | yes |
-| `unet_combined_frac50` | U-Net | Dice + BCE | 50 % | yes |
-| `attention_unet_combined_frac50` | Attention U-Net | Dice + BCE | 50 % | yes |
-| `unet_combined_noaug` | U-Net | Dice + BCE | 100 % | no |
-| `attention_unet_combined_noaug` | Attention U-Net | Dice + BCE | 100 % | no |
+The full per-run summary is in `outputs/figures/summary_table.csv`. Best
+validation-Dice highlights:
 
-## Outputs
+| Run | Dice | IoU | Precision | Recall |
+|---|---|---|---|---|
+| **U-Net + Combined loss** (best overall) | **0.8334** | 0.7220 | 0.8611 | 0.8229 |
+| U-Net + Dice loss | 0.8298 | 0.7182 | 0.8860 | 0.7969 |
+| U-Net + BCE loss | 0.8166 | 0.6995 | 0.8890 | 0.7698 |
+| **Attention U-Net + Dice loss** (best Attention) | **0.8153** | 0.6926 | 0.8025 | 0.8460 |
+| U-Net (no augmentation) | 0.8151 | 0.6992 | 0.9016 | 0.7610 |
+| U-Net (50 % training data) | 0.8035 | 0.6820 | 0.8470 | 0.7840 |
 
-Each call to `train_unet(...)` or `train_attention_unet(...)` produces:
+---
 
-- `outputs/checkpoints/<run_tag>/epoch01.pth` … `epoch10.pth`
-- `outputs/checkpoints/<run_tag>/best_model.pth` (highest validation Dice)
-- `outputs/results/<run_tag>.csv` with columns
-  `epoch, train_loss, val_loss, dice, iou, precision, recall`
-
-Visualizations:
-
-- `outputs/figures/curves_<run_tag>.png` — per-run training curves
-  (loss / Dice / IoU / Precision+Recall).
-- `outputs/figures/summary_table.csv` — best-Dice epoch from every run.
-- `outputs/figures/model_comparison.png` — input | ground-truth |
-  U-Net prediction | Attention U-Net prediction.
-
-## Evaluation Metrics
+## Evaluation metrics
 
 - **Dice coefficient** — primary overlap metric.
 - **Intersection over Union (IoU)** — secondary overlap metric.
-- **Precision** — fraction of predicted lesion pixels that are correct
-  (low = over-segmenting).
-- **Recall** — fraction of true lesion pixels that are recovered
-  (low = under-segmenting).
+- **Precision** — fraction of predicted lesion pixels that are correct.
+- **Recall** — fraction of true lesion pixels that are recovered.
 
-All four are computed on the validation split after every epoch.
+All four are computed on the validation split after every epoch and saved per
+run as `outputs/results/<run_tag>.csv`.

@@ -1,4 +1,3 @@
-# Environment
 venv/
 __pycache__/
 *.pyc
@@ -8,11 +7,15 @@ data/
 *.pth
 outputs/checkpoints/
 
+# Inference cache + outputs (downloaded models, generated images)
+models_cache/
+inference_outputs/
+
 # Skip raw images by default (none should be in the repo anyway)
 data/raw/**/*.jpg
 
 # Keep figures: re-allow PNGs only inside outputs/figures/
 *.png
 !outputs/figures/*.png
-.DS_Store
+
 .DS_Store
