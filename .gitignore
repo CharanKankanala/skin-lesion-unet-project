@@ -1,0 +1,17 @@
+# Environment
+venv/
+__pycache__/
+*.pyc
+
+# Big artifacts (do NOT push)
+data/
+*.pth
+outputs/checkpoints/
+
+# Skip raw images by default (none should be in the repo anyway)
+data/raw/**/*.jpg
+
+# Keep figures: re-allow PNGs only inside outputs/figures/
+*.png
+!outputs/figures/*.png
+.DS_Store

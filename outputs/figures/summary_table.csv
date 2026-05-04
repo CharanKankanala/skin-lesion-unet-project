@@ -1,0 +1,11 @@
+run,best_epoch,dice,iou,precision,recall
+attention_unet_bce,8,0.6417,0.4844,0.7847,0.5759
+attention_unet_combined,8,0.6612,0.5062,0.7792,0.6098
+attention_unet_combined_frac50,9,0.6982,0.5473,0.736,0.6995
+attention_unet_combined_noaug,10,0.6787,0.5251,0.7359,0.6613
+attention_unet_dice,10,0.8153,0.6926,0.8025,0.846
+unet_bce,6,0.8166,0.6995,0.889,0.7698
+unet_combined,10,0.8334,0.722,0.8611,0.8229
+unet_combined_frac50,10,0.8035,0.682,0.847,0.784
+unet_combined_noaug,8,0.8151,0.6992,0.9016,0.761
+unet_dice,10,0.8298,0.7182,0.886,0.7969
