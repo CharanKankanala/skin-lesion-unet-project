@@ -12,7 +12,7 @@ The trained models live on Hugging Face and are downloaded automatically the
 first time you run inference, so the project can be reproduced end-to-end on a
 fresh machine without any retraining.
 
-🤗 **Models:** https://huggingface.co/CharanKankanala2003/skin-lesion-unet-models
+**Models:** https://huggingface.co/CharanKankanala2003/skin-lesion-unet-models
 
 ---
 
