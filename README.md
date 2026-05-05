@@ -12,17 +12,25 @@ The trained models live on Hugging Face and are downloaded automatically the
 first time you run inference, so the project can be reproduced end-to-end on a
 fresh machine without any retraining.
 
-**Live Demo:** https://huggingface.co/spaces/CharanKankanala2003/skin-lesion-unet
+🚀 **Live Demo:** https://huggingface.co/spaces/CharanKankanala2003/skin-lesion-unet
+🤗 **Models:** https://huggingface.co/CharanKankanala2003/skin-lesion-unet-models
 
-**Models:** https://huggingface.co/CharanKankanala2003/skin-lesion-unet-models
 ---
 
 ## Quick start (one command)
 
-After unzipping or cloning, the entire project runs with **a single command**:
+After unzipping or cloning, the entire project runs with **a single command**.
+
+**On macOS / Linux:**
 
 ```bash
 bash run.sh
+```
+
+**On Windows (Command Prompt):**
+
+```bat
+run.bat
 ```
 
 This will (on first run):
@@ -38,14 +46,13 @@ just a few seconds.
 ### Other inference modes
 
 ```bash
-# Run the Attention U-Net checkpoint instead of the default U-Net
+# macOS / Linux
 bash run.sh --model attention_unet
-
-# Run on your own dermoscopic image
 bash run.sh --image path/to/your/image.jpg
 
-# Combine both
-bash run.sh --model attention_unet --image path/to/your/image.jpg
+# Windows
+run.bat --model attention_unet
+run.bat --image path\to\your\image.jpg
 ```
 
 ---
@@ -53,19 +60,10 @@ bash run.sh --model attention_unet --image path/to/your/image.jpg
 ## Requirements
 
 - **Python 3.10+** (tested on Python 3.12)
-- **macOS / Linux** (the `run.sh` launcher is a bash script)
+- **macOS / Linux / Windows** — `run.sh` for Mac/Linux, `run.bat` for Windows
 - **Internet** for the first run (to download the model from Hugging Face)
 - *Optional:* CUDA GPU or Apple Silicon MPS — auto-detected. CPU works too,
   inference takes ~2 seconds per image either way.
-
-If you are on Windows, the inference script itself works; just call it directly:
-
-```bash
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-python inference.py
-```
 
 ---
 
