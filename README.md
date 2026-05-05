@@ -12,8 +12,8 @@ The trained models live on Hugging Face and are downloaded automatically the
 first time you run inference, so the project can be reproduced end-to-end on a
 fresh machine without any retraining.
 
+**Live Demo:** https://huggingface.co/spaces/CharanKankanala2003/skin-lesion-unet
 **Models:** https://huggingface.co/CharanKankanala2003/skin-lesion-unet-models
-
 ---
 
 ## Quick start (one command)
